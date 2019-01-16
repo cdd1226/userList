@@ -29,3 +29,11 @@ export function deleteUserList(data) {
   })
 }
 
+// 给用户分配角色
+export function modifyRoler(data) {
+  return request({
+    url: '/users/action',
+    method: 'put',
+    data
+  })
+}

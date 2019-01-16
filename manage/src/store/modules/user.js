@@ -67,7 +67,7 @@ const user = {
         // 加密
         register(username, md5(password + 'cdd'), phone).then(response => {
           console.log('...response', response)
-          if (response.data.code == 1) {
+          if (response.data.code === 1) {
             commit('SET_TOKEN', 'admin')
             setToken('admin')
             resolve()

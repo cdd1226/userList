@@ -43,6 +43,7 @@
         </template>
       </el-table-column>
       <!--权限增加 -->
+
       <el-table-column label="角色" width="120">
         <template slot-scope="scope">
           <el-tag
@@ -137,22 +138,14 @@ import { mapState, mapActions } from 'vuex'
 export default {
   data() {
     const phoneValidator = (val, value, callback) => {
-      if (
-        !/^(13[0-9]|14[579]|15[0-3,5-9]|16[6]|17[0135678]|18[0-9]|19[89])\d{8}$/.test(
-          value
-        )
-      ) {
+      if (!/^(13[0-9]|14[579]|15[0-3,5-9]|16[6]|17[0135678]|18[0-9]|19[89])\d{8}$/.test(value)) {
         callback(new Error('输入正确的手机号'))
       } else {
         callback()
       }
     }
     const emailValidator = (val, value, callback) => {
-      if (
-        !/^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/.test(
-          value
-        )
-      ) {
+      if (!/^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$/.test(value)) {
         callback(new Error('输入正确的邮箱'))
       } else {
         callback()
@@ -162,7 +155,7 @@ export default {
       current: 1,
       currents: {},
       dialogs: false,
-      rolers: ['boss', 'developer', 'producter', 'operator', 'designer', ''],
+      rolers: ['boss', 'developer', 'producter', 'operator', 'designer'],
       myRolers: [],
       editRules: {
         username: [{ trigger: 'blur', required: true, message: '用户必填' }],
@@ -185,7 +178,8 @@ export default {
     ...mapActions({
       gitList: 'list/gitList',
       updateUserList: 'list/updateUserList',
-      deleteUserList: 'list/deleteUserList'
+      deleteUserList: 'list/deleteUserList',
+      modifyRoler: 'list/modifyRoler'
     }),
     handleEdit(index, row) {
       // console.log(scope, index);
@@ -197,20 +191,22 @@ export default {
     // 删除功能
     handleDelete(index, scope) {
       const { id } = scope
-      this.deleteUserList({ uid: id }).then(res => {
-        this.$message({
-          message: res,
-          center: true,
-          type: 'sucess'
+      this.deleteUserList({ uid: id })
+        .then(res => {
+          this.$message({
+            message: res,
+            center: true,
+            type: 'sucess'
+          })
+          this.gitList({ page: this.current })
         })
-        this.gitList({ page: this.current })
-      }).catch((err) => {
-        this.$message({
-          message: err,
-          center: true,
-          type: 'error'
+        .catch(err => {
+          this.$message({
+            message: err,
+            center: true,
+            type: 'error'
+          })
         })
-      })
     },
     handleClose() {
       this.dialogs = false
@@ -221,27 +217,56 @@ export default {
     },
     // 点击确定，刷新页面
     submit() {
-      this.$refs.form.validate(valid => {
-        if (valid) {
-          console.log(this.currents)
-          const { id, username, email, phone } = this.currents
-          this.updateUserList({ id, username, email, phone }).then(res => {
-            this.$message({
-              message: res,
-              center: true,
-              type: 'sucess'
-            })
-            this.gitList({ page: this.current })
-          }).catch((err) => {
+      if (this.type === 'edit') {
+        this.$refs.form.validate(valid => {
+          if (valid) {
+            console.log(this.currents)
+            const { id, username, email, phone } = this.currents
+            this.updateUserList({ id, username, email, phone })
+              .then(res => {
+                this.$message({
+                  message: res,
+                  center: true,
+                  type: 'sucess'
+                })
+                this.gitList({ page: this.current })
+              })
+              .catch(err => {
+                this.$message({
+                  message: err,
+                  center: true,
+                  type: 'error'
+                })
+              })
+            this.dialogs = false
+
+          // 添加权限555555
+          }
+        })
+      } else if (this.type === 'roler') {
+        const { id } = this.currents
+        // 后台接口必须是rolersId  不然报错；
+        const rolersId = this.myRolers.map(item => {
+          return this.rolers.findIndex(value => value === item) + 1
+        })
+        console.log(rolersId)
+        this.modifyRoler({ uid: id, rolersId }).then(res => {
+          this.$message({
+            message: res,
+            center: true,
+            type: 'sucess'
+          })
+          this.gitList({ page: this.current })
+        })
+          .catch(err => {
             this.$message({
               message: err,
               center: true,
               type: 'error'
             })
           })
-          this.dialogs = false
-        }
-      })
+        this.dialogs = false
+      }
     },
     // 修改权限
     handleRoler(index, row) {
