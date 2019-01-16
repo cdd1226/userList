@@ -19,3 +19,13 @@ export function updateUserList(data) {
   })
 }
 
+// 删除用户信息
+export function deleteUserList(data) {
+  return request({
+    url: '/users/action', // 假地址 自行替换
+    method: 'delete',
+    data
+
+  })
+}
+

@@ -127,19 +127,35 @@ export default {
   created() {
     this.gitList()
   },
+  // 使用store的数据
   methods: {
     ...mapActions({
       gitList: 'list/gitList',
-      updateUserList: 'list/updateUserList'
+      updateUserList: 'list/updateUserList',
+      deleteUserList: 'list/deleteUserList'
     }),
     handleEdit(index, row) {
       // console.log(scope, index);
       this.currents = { ...row }
-
       this.dialogs = true
     },
+    // 删除功能
     handleDelete(index, scope) {
-      console.log(scope)
+      const { id } = scope
+      this.deleteUserList({ uid: id }).then(res => {
+        this.$message({
+          message: res,
+          center: true,
+          type: 'sucess'
+        })
+        this.gitList({ page: this.current })
+      }).catch((err) => {
+        this.$message({
+          message: err,
+          center: true,
+          type: 'error'
+        })
+      })
     },
     handleClose() {
       this.dialogs = false
