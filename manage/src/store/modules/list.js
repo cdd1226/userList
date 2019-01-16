@@ -1,4 +1,4 @@
-import { gitLists } from '@/api/user'
+import { gitLists, updateUserList } from '@/api/user'
 
 const state = {
   list: []
@@ -18,7 +18,7 @@ const actions = {
       // console.log(gitLists)
       gitLists(query).then(res => {
         // console.log(res);
-        if (res.data.code == 1) {
+        if (res.data.code === 1) {
           commit('updateList', res.data.data.list)
           resolve()
         } else {
@@ -26,6 +26,19 @@ const actions = {
         }
       }).catch(err => {
         console.log(err)
+      })
+    })
+  },
+  updateUserList({ commit }, data) {
+    return new Promise((resolve, reject) => {
+      updateUserList(data).then(res => {
+        if (res.data.code === 1) {
+          resolve(res.data.msg)
+        } else {
+          reject(res.data.msg)
+        }
+      }).catch(err => {
+        reject(err)
       })
     })
   }

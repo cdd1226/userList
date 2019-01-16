@@ -47,6 +47,38 @@
       :total="100"
       layout="prev, pager, next"
       @current-change="hanlechanges"/>
+
+    <el-dialog
+      :visible.sync="dialogs"
+      :before-close="handleClose"
+      title="用户信息"
+      center
+      width="50%">
+      <el-form ref="form" :model="currents" :rules="editRules" label-position="right" label-width="80px">
+        <el-form-item label="用户名" prop="username">
+          <el-input v-model="currents.username"/>
+        </el-form-item>
+        <el-form-item label="手机号" prop="phone" >
+          <el-input v-model="currents.phone"/>
+        </el-form-item>
+        <el-form-item label="头像">
+          <el-upload
+            :show-file-list="false"
+            action="123"
+            class="avatar-uploader">
+            <img v-if="currents.avatar" :src="currents.avatar" class="avatar">
+            <i v-else class="el-icon-plus avatar-uploader-icon"/>
+          </el-upload>
+        </el-form-item>
+        <el-form-item label="邮箱" prop="email">
+          <el-input v-model="currents.email"/>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogs = false">取 消</el-button>
+        <el-button type="primary" @click="submit">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -54,8 +86,37 @@
 import { mapState, mapActions } from 'vuex'
 export default {
   data() {
+    const phoneValidator = (val, value, callback) => {
+      if (
+        !/^(13[0-9]|14[579]|15[0-3,5-9]|16[6]|17[0135678]|18[0-9]|19[89])\d{8}$/.test(
+          value
+        )
+      ) {
+        callback(new Error('输入正确的手机号'))
+      } else {
+        callback()
+      }
+    }
+    const emailValidator = (val, value, callback) => {
+      if (
+        !/^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/.test(
+          value
+        )
+      ) {
+        callback(new Error('输入正确的邮箱'))
+      } else {
+        callback()
+      }
+    }
     return {
-      current: 1
+      current: 1,
+      currents: {},
+      dialogs: false,
+      editRules: {
+        username: [{ trigger: 'blur', required: true, message: '用户必填' }],
+        phone: [{ trigger: 'blur', required: true, message: phoneValidator }],
+        email: [{ trigger: 'blur', required: true, message: emailValidator }]
+      }
     }
   },
   computed: {
@@ -68,18 +129,54 @@ export default {
   },
   methods: {
     ...mapActions({
-      gitList: 'list/gitList'
+      gitList: 'list/gitList',
+      updateUserList: 'list/updateUserList'
     }),
-    handleEdit(scope, index) {
-      console.log(scope, index)
-    },
-    handleDelete(scope, index) {
+    handleEdit(index, row) {
+      // console.log(scope, index);
+      this.currents = { ...row }
 
+      this.dialogs = true
+    },
+    handleDelete(index, scope) {
+      console.log(scope)
+    },
+    handleClose() {
+      this.dialogs = false
     },
     hanlechanges(page) {
+      this.current = page
       this.gitList({ page })
+    },
+    submit() {
+      this.$refs.form.validate(valid => {
+        if (valid) {
+          console.log(this.currents)
+          const { id, username, email, phone } = this.currents
+          this.updateUserList({ id, username, email, phone }).then(res => {
+            this.$message({
+              message: res,
+              center: true,
+              type: 'sucess'
+            })
+            this.gitList({ page: this.current })
+          }).catch((err) => {
+            this.$message({
+              message: err,
+              center: true,
+              type: 'error'
+            })
+          })
+          this.dialogs = false
+        }
+      })
     }
   }
-
 }
 </script>
+<style>
+.avatar {
+  width: 20%;
+}
+</style>
+
