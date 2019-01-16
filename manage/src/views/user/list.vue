@@ -29,6 +29,32 @@
       <el-table-column
         prop="address"
         label="地址"/>
+      <!-- 角色增加 -->
+      <el-table-column label="角色" width="110">
+        <template slot-scope="scope">
+          <el-tag
+            v-for="tag in scope.row.rolers"
+            :key="tag"
+            :disable-transitions="false"
+            closable
+            @close="handleClose(tag)">
+            {{ tag }}
+          </el-tag>
+        </template>
+      </el-table-column>
+      <!--权限增加 -->
+      <el-table-column label="角色" width="120">
+        <template slot-scope="scope">
+          <el-tag
+            v-for="tag in scope.row.access"
+            :key="tag"
+            :disable-transitions="false"
+            closable
+            @close="handleClose(tag)">
+            {{ tag }}
+          </el-tag>
+        </template>
+      </el-table-column>
       <el-table-column label="操作">
         <template slot-scope="scope">
           <el-button
@@ -38,10 +64,13 @@
             size="mini"
             type="danger"
             @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+          <el-button
+            size="mini"
+            @click="handleRoler(scope.$index, scope.row)">修改角色</el-button>
         </template>
       </el-table-column>
     </el-table>
-    <!-- //分页器 -->
+    <!-- 分页器 -->
     <el-pagination
       :current-page="current"
       :total="100"
@@ -51,17 +80,17 @@
     <el-dialog
       :visible.sync="dialogs"
       :before-close="handleClose"
-      title="用户信息"
+      :title="type=='edit'?'编辑用户信息':'修改用户角色'"
       center
       width="50%">
       <el-form ref="form" :model="currents" :rules="editRules" label-position="right" label-width="80px">
-        <el-form-item label="用户名" prop="username">
+        <el-form-item v-if="type=='edit'" label="用户名" prop="username">
           <el-input v-model="currents.username"/>
         </el-form-item>
-        <el-form-item label="手机号" prop="phone" >
+        <el-form-item v-if="type=='edit'" label="手机号" prop="phone" >
           <el-input v-model="currents.phone"/>
         </el-form-item>
-        <el-form-item label="头像">
+        <el-form-item v-if="type=='edit'" label="头像">
           <el-upload
             :show-file-list="false"
             action="123"
@@ -70,8 +99,29 @@
             <i v-else class="el-icon-plus avatar-uploader-icon"/>
           </el-upload>
         </el-form-item>
-        <el-form-item label="邮箱" prop="email">
+        <el-form-item v-if="type=='edit'" label="邮箱" prop="email">
           <el-input v-model="currents.email"/>
+        </el-form-item>
+
+        <!-- //角色的遮罩层 -->
+        <el-form-item v-if="type=='roler'" label="全部角色" prop="email">
+          <el-tag
+            v-for="tag in myRolers"
+            :key="tag"
+            :disable-transitions="false"
+            closable
+            @close="deleteRoules(tag)">
+            {{ tag }}
+          </el-tag>
+        </el-form-item>
+        <el-form-item v-if="type=='roler'" label="我的角色" prop="email">
+          <el-tag
+            v-for="tag in rolers"
+            :key="tag">
+            <span @click="addRolers(tag)">
+              {{ tag }}
+            </span>
+          </el-tag>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -112,11 +162,14 @@ export default {
       current: 1,
       currents: {},
       dialogs: false,
+      rolers: ['boss', 'developer', 'producter', 'operator', 'designer', ''],
+      myRolers: [],
       editRules: {
         username: [{ trigger: 'blur', required: true, message: '用户必填' }],
         phone: [{ trigger: 'blur', required: true, message: phoneValidator }],
         email: [{ trigger: 'blur', required: true, message: emailValidator }]
-      }
+      },
+      type: '' // 弹框类型,edit表示修改信息, roler表示修改角色
     }
   },
   computed: {
@@ -136,9 +189,11 @@ export default {
     }),
     handleEdit(index, row) {
       // console.log(scope, index);
+      this.type = 'edit'
       this.currents = { ...row }
       this.dialogs = true
     },
+
     // 删除功能
     handleDelete(index, scope) {
       const { id } = scope
@@ -164,6 +219,7 @@ export default {
       this.current = page
       this.gitList({ page })
     },
+    // 点击确定，刷新页面
     submit() {
       this.$refs.form.validate(valid => {
         if (valid) {
@@ -186,6 +242,23 @@ export default {
           this.dialogs = false
         }
       })
+    },
+    // 修改权限
+    handleRoler(index, row) {
+      this.type = 'roler'
+      this.currents = { ...row }
+      this.myRolers = [...row.rolers]
+      this.dialogs = true
+    },
+    // 删除角色标签
+    deleteRoules(roler) {
+      const index = this.myRolers.findIndex(item => item === roler)
+      this.myRolers.splice(index, 1)
+    },
+    // 添加标签
+    addRolers(roler) {
+      this.myRolers.push(roler)
+      this.myRolers = [...new Set(this.myRolers)]
     }
   }
 }
