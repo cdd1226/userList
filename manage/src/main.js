@@ -26,6 +26,8 @@ import './permission' // permission control
 import './mock' // simulation data
 // 引入自定义过滤器
 import * as filters from './filters' // global filters
+
+import './directive/permission/index'
 // import Mock from 'mockjs'
 
 // //拦截  拦截
