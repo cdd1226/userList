@@ -14,6 +14,14 @@
           <img :src="scope.row.avatar" alt="" style="width:100%">
         </template>
       </el-table-column>
+
+      <!-- 最新添加时间 -->
+      <el-table-column label="创建时间" width="80">
+        <template slot-scope="scope">
+          <span>{{ scope.row.create_time | formatDate }}</span>
+        </template>
+      </el-table-column>
+
       <el-table-column
         prop="username"
         label="姓名"

@@ -26,8 +26,10 @@ import './permission' // permission control
 import './mock' // simulation data
 // 引入自定义过滤器
 import * as filters from './filters' // global filters
+// 引入自定义指令
+import permission from './directive/permission/index'
+Vue.directive('permission', permission)
 
-import './directive/permission/index'
 // import Mock from 'mockjs'
 
 // //拦截  拦截
@@ -45,8 +47,23 @@ Vue.use(Element, {
 Object.keys(filters).forEach(key => {
   Vue.filter(key, filters[key])
 })
+
+// 写日期格式化过滤器
+Vue.filter('formatDate', function(value) {
+  const date = new Date()
+  date.setTime(value)
+  console.log('value..', value, date)
+  const year = date.getFullYear()
+  const month = (date.getMonth() + 1).toString().padStart(2, '0')
+  const day = date.getDate().toString().padStart(2, '0')
+  const hour = date.getHours().toString().padStart(2, '0')
+  const min = date.getMinutes().toString().padStart(2, '0')
+  const sec = date.getSeconds().toString().padStart(2, '0')
+  return `${year}-${month}-${day} ${hour}:${min}:${sec}`
+})
+
 // 去掉生成环境提示
-// Vue.config.productionTip = false
+Vue.config.productionTip = false
 
 new Vue({
   el: '#app',
