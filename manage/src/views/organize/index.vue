@@ -4,11 +4,12 @@
     <div class="block">
       <p>我的权限</p>
       <el-tree
-        v-permission="[&quot;admin&quot;]"
+        ref="tree"
         :data="mewData"
         :expand-on-click-node="false"
         show-checkbox
         node-key="id"
+        draggable
         default-expand-all>
         <span slot-scope="{ node, data }" class="custom-tree-node">
           <span>{{ node.data.name }}</span>
@@ -19,15 +20,25 @@
               @click="() => append(node,data)">
               Append
             </el-button>
-            <!-- <el-button
+            <el-button
               type="text"
               size="mini"
               @click="() => remove(node, data)">
               Delete
-            </el-button> -->
+            </el-button>
           </span>
         </span>
       </el-tree>
+      <el-dialog
+        :visible.sync="dialogVisible"
+        title="提示"
+        width="50%">
+        <el-input v-model="temp" placeholder="请输入你要添加的职位"/>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="dialogVisible = false">取 消</el-button>
+          <el-button type="primary" @click="handleSubmit">确 定</el-button>
+        </span>
+      </el-dialog>
     </div>
   </div>
 </template>
@@ -36,6 +47,9 @@ export default {
   data() {
     return {
       mewData: [],
+      dialogVisible: false,
+      current: {},
+      temp: '',
       organize: [{
         id: 1, name: '***事业部', parentid: ''
       }, {
@@ -122,8 +136,30 @@ export default {
         }
       })
     },
+    // 增加数据
     append(node, data) {
-
+      this.dialogVisible = true
+      this.current = {
+        node, data
+      }
+    },
+    // 点击确定的这一次执行的操作
+    handleSubmit() {
+      if (this.temp) {
+        const mewData = {
+          id: this.organize[this.organize.length - 1].id + 1,
+          name: this.temp,
+          parentid: this.current.data.id
+        }
+        this.organize.push(mewData)
+        this.$refs.tree.append(mewData, this.current.node)
+        this.dialogVisible = false
+        this.temp = ''
+      }
+    },
+    // 删除数据
+    remove(node, data) {
+      this.$refs.tree.remove(node)
     }
   }
 }
