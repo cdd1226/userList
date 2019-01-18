@@ -28,6 +28,11 @@ import './mock' // simulation data
 import * as filters from './filters' // global filters
 // 引入自定义指令
 import permission from './directive/permission/index'
+
+import VCharts from 'v-charts'
+
+Vue.use(VCharts)
+
 Vue.directive('permission', permission)
 
 // import Mock from 'mockjs'
@@ -52,7 +57,7 @@ Object.keys(filters).forEach(key => {
 Vue.filter('formatDate', function(value) {
   const date = new Date()
   date.setTime(value)
-  console.log('value..', value, date)
+  // console.log('value..', value, date)
   const year = date.getFullYear()
   const month = (date.getMonth() + 1).toString().padStart(2, '0')
   const day = date.getDate().toString().padStart(2, '0')

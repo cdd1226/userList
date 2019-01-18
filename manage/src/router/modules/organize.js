@@ -19,7 +19,7 @@ const organizeRouter = {
       meta: { title: 'Index' }
     }, {
       path: 'coding',
-      component: () => import('@/views/organize/index'),
+      component: () => import('@/views/organize/charts'),
       name: 'Coding',
       meta: { title: 'Coding', roles: ['coding'] }
     }, {

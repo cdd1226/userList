@@ -101,12 +101,14 @@
         </el-form-item>
         <el-form-item v-if="type=='edit'" label="头像">
           <el-upload
+            :on-success="uploadSuccess"
             :show-file-list="false"
-            action="123"
+            action="http://123.206.55.50:11000/upload"
             class="avatar-uploader">
             <img v-if="currents.avatar" :src="currents.avatar" class="avatar">
             <i v-else class="el-icon-plus avatar-uploader-icon"/>
           </el-upload>
+
         </el-form-item>
         <el-form-item v-if="type=='edit'" label="邮箱" prop="email">
           <el-input v-model="currents.email"/>
@@ -189,6 +191,19 @@ export default {
       deleteUserList: 'list/deleteUserList',
       modifyRoler: 'list/modifyRoler'
     }),
+    // 上传图片功能
+    uploadSuccess(res, file, fileList) {
+      console.log(res, file, fileList)
+      if (res.code === 1) {
+        this.currents.avatar = res.data[0].path
+      } else {
+        this.$message({
+          message: res.msg,
+          center: true,
+          type: 'success'
+        })
+      }
+    },
     handleEdit(index, row) {
       // console.log(scope, index);
       this.type = 'edit'
@@ -228,9 +243,9 @@ export default {
       if (this.type === 'edit') {
         this.$refs.form.validate(valid => {
           if (valid) {
-            console.log(this.currents)
-            const { id, username, email, phone } = this.currents
-            this.updateUserList({ id, username, email, phone })
+            // console.log(this.currents)
+            const { id, avatar, username, email, phone } = this.currents
+            this.updateUserList({ id, avatar, username, email, phone })
               .then(res => {
                 this.$message({
                   message: res,
