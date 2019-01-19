@@ -161,6 +161,25 @@ export default {
     remove(node, data) {
       this.$refs.tree.remove(node)
     }
+    // handleDownload() {
+    //   this.downloadLoading = true
+    //    import('@/vendor/Export2Excel').then(excel => {
+    //      // 二维数组
+    //      const tHeader = Object.keys(this.tableDate[0])
+    //      const data = this.tableDate.map(item => {
+    //        return Object.values(item)
+    //      })
+    //      console.log(tHeader, data)
+    //      excal.export_json_to_excal({
+    //        header: tHeader,
+    //        data,
+    //        filename: '用户信息',
+    //        autoWidth: 'true',
+    //        bookType: 'xlsx'
+    //      })
+    //      this.downloadLoading = false
+    //    })
+    // }
   }
 }
 </script>
