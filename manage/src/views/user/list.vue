@@ -1,5 +1,11 @@
 <template>
   <div>
+    <el-button
+      :loading="downloadLoading"
+      style="margin:0 0 20px 20px;"
+      type="primary"
+      icon="document"
+      @click="handleDownload">{{ $t('excel.export') }} Excel</el-button>
     <el-table
       :data="tableData"
       style="width: 100%">
@@ -148,14 +154,22 @@ import { mapState, mapActions } from 'vuex'
 export default {
   data() {
     const phoneValidator = (val, value, callback) => {
-      if (!/^(13[0-9]|14[579]|15[0-3,5-9]|16[6]|17[0135678]|18[0-9]|19[89])\d{8}$/.test(value)) {
+      if (
+        !/^(13[0-9]|14[579]|15[0-3,5-9]|16[6]|17[0135678]|18[0-9]|19[89])\d{8}$/.test(
+          value
+        )
+      ) {
         callback(new Error('输入正确的手机号'))
       } else {
         callback()
       }
     }
     const emailValidator = (val, value, callback) => {
-      if (!/^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$/.test(value)) {
+      if (
+        !/^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$/.test(
+          value
+        )
+      ) {
         callback(new Error('输入正确的邮箱'))
       } else {
         callback()
@@ -165,6 +179,7 @@ export default {
       current: 1,
       currents: {},
       dialogs: false,
+      downloadLoading: false,
       rolers: ['boss', 'developer', 'producter', 'operator', 'designer'],
       myRolers: [],
       editRules: {
@@ -263,7 +278,7 @@ export default {
               })
             this.dialogs = false
 
-          // 添加权限555555
+            // 添加权限555555
           }
         })
       } else if (this.type === 'roler') {
@@ -273,14 +288,15 @@ export default {
           return this.rolers.findIndex(value => value === item) + 1
         })
         console.log(rolersId)
-        this.modifyRoler({ uid: id, rolersId }).then(res => {
-          this.$message({
-            message: res,
-            center: true,
-            type: 'sucess'
+        this.modifyRoler({ uid: id, rolersId })
+          .then(res => {
+            this.$message({
+              message: res,
+              center: true,
+              type: 'sucess'
+            })
+            this.gitList({ page: this.current })
           })
-          this.gitList({ page: this.current })
-        })
           .catch(err => {
             this.$message({
               message: err,
@@ -307,6 +323,25 @@ export default {
     addRolers(roler) {
       this.myRolers.push(roler)
       this.myRolers = [...new Set(this.myRolers)]
+    },
+    // 新增excal表格
+    handleDownload() {
+      this.downloadLoading = true
+        import('@/vendor/Export2Excel').then(excel => {
+          const tHeader = Object.keys(this.tableData[0])
+          const data = this.tableData.map(item => {
+            return Object.values(item)
+          })
+          console.log('tHeader...', tHeader, data)
+          excel.export_json_to_excel({
+            header: tHeader,
+            data,
+            filename: '用户信息',
+            autoWidth: 'true',
+            bookType: 'xlsx'
+          })
+          this.downloadLoading = false
+        })
     }
   }
 }
